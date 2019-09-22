@@ -1,0 +1,21 @@
+#pragma once
+#include <cryptominisat5/cryptominisat.h>
+#include "variable.h"
+
+class Solver {
+public:
+	Solver();
+
+	Variable new_var();
+	VariableList new_vars(const size_t n);
+	unsigned var_count() const;
+
+	void add_clause(const VariableList& vars);
+	unsigned clause_count() const;
+
+	CMSat::lbool solve();
+	const std::vector<CMSat::lbool>& get_model() const;
+private:
+	CMSat::SATSolver m_sat_solver;
+	unsigned m_clause_count;
+};
