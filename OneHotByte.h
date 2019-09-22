@@ -1,5 +1,6 @@
 #pragma once
 #include <cryptominisat5/cryptominisat.h>
+#include <vector>
 #include "Variable.h"
 #include "Solver.h"
 
@@ -18,3 +19,5 @@ private:
 	Solver* m_solver;
 	VariableList m_vars;
 };
+
+typedef std::vector<OneHotByte> OneHotByteList;
