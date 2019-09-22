@@ -77,22 +77,16 @@ class OneHotByte
 public:
 	OneHotByte(Solver* solver);
 
-	Variable at(int i) const;
-	VariableList all() const;
+	Variable at(size_t i) const;
+	const VariableList& all() const;
 	inline int length() const { return 256; }
 
 	int to_int() const;
 
 private:
 	Solver* m_solver;
-	int m_start;
+	VariableList m_vars;
 };
-
-static Variable make_var(Solver* solver)
-{
-	solver->new_var();
-	return Variable(solver->var_count()-1, false);
-}
 
 static void at_least_one(Solver* solver, const VariableList& lits)
 {
@@ -110,7 +104,7 @@ static void at_most_one(Solver* solver, const VariableList& lits)
 
 static Variable commander_variable(Solver* solver, const VariableList& lits)
 {
-	auto var = make_var(solver);
+	auto var = solver->new_var();
 
 	//(a or b or c ...) => var
 	for (size_t i = 0; i < lits.size(); i++) {
@@ -151,34 +145,26 @@ static void commander_recursive(Solver* solver, const VariableList& lits, size_t
 
 OneHotByte::OneHotByte(Solver* solver)
 	: m_solver(solver)
-	, m_start(solver->var_count())
+	, m_vars(solver->new_vars(length()))
 {
-	solver->new_vars(length());
-
 	commander_recursive(solver, all(), 4);
 }
 
-Variable OneHotByte::at(int i) const
+Variable OneHotByte::at(size_t i) const
 {
-	assert((i >= m_start) && (i < m_start+length()));
-	return CMSat::Lit(m_start + i, false);
+	return m_vars.at(i);
 }
 
-VariableList OneHotByte::all() const
+const VariableList& OneHotByte::all() const
 {
-	VariableList lits;
-	lits.reserve(length());
-	for (int i = 0; i < length(); i++) {
-		lits.push_back(at(i));
-	}
-	return lits;
+	return m_vars;
 }
 
 int OneHotByte::to_int() const
 {
 	auto model = m_solver->get_model();
 	for (int i = 0; i < length(); i++) {
-		if (model[m_start+i] == l_True) {
+		if (model[m_vars[i].var()] == l_True) {
 			return i;
 		}
 	}
@@ -215,7 +201,7 @@ int main(int argc, char** argv) {
 	// clause.push_back(CMSat::Lit(1, false));
 	// clause.push_back(CMSat::Lit(2, false));
 	// solver.add_clause({byte.at(0)});
-	// solver.add_clause({byte.at(143)});
+	solver.add_clause({byte.at(143)});
 
 	lbool ret = solver.solve();
 	// solver.print_stats();
