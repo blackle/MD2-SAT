@@ -3,34 +3,103 @@
 #include <vector>
 using namespace CMSat;
 
+typedef CMSat::Lit Variable;
+typedef std::vector<Variable> VariableList;
+
+class Solver {
+public:
+	Solver();
+
+	Variable new_var();
+	VariableList new_vars(const size_t n);
+	unsigned var_count() const;
+
+	void add_clause(const VariableList& vars);
+	unsigned clause_count() const;
+
+	lbool solve();
+	const std::vector<lbool>& get_model() const;
+private:
+	CMSat::SATSolver m_sat_solver;
+	unsigned m_clause_count;
+};
+
+Solver::Solver()
+	: m_clause_count(0)
+{}
+
+Variable Solver::new_var()
+{
+	m_sat_solver.new_var();
+	return Variable(m_sat_solver.nVars()-1, false);
+}
+
+VariableList Solver::new_vars(const size_t n)
+{
+	size_t initial = m_sat_solver.nVars();
+	m_sat_solver.new_vars(n);
+
+	VariableList vars;
+	for (size_t i = initial; i < initial+n; i++) {
+		vars.push_back(Variable(i, false));
+	}
+	return vars;
+}
+
+unsigned Solver::var_count() const
+{
+	return m_sat_solver.nVars();
+}
+
+void Solver::add_clause(const VariableList& vars)
+{
+	m_clause_count++;
+	m_sat_solver.add_clause(vars);
+}
+
+unsigned Solver::clause_count() const
+{
+	return m_clause_count;
+}
+
+lbool Solver::solve()
+{
+	return m_sat_solver.solve();
+}
+
+const std::vector<lbool>& Solver::get_model() const
+{
+	return m_sat_solver.get_model();
+}
+
 class OneHotByte
 {
 public:
-	OneHotByte(SATSolver* solver);
+	OneHotByte(Solver* solver);
 
-	CMSat::Lit at(int i) const;
-	std::vector<CMSat::Lit> all() const;
+	Variable at(int i) const;
+	VariableList all() const;
 	inline int length() const { return 256; }
 
 	int to_int() const;
 
 private:
-	SATSolver* m_solver;
+	Solver* m_solver;
 	int m_start;
 };
 
-static CMSat::Lit make_var(SATSolver* solver)
+static Variable make_var(Solver* solver)
 {
 	solver->new_var();
-	return CMSat::Lit(solver->nVars()-1, false);
+	return Variable(solver->var_count()-1, false);
 }
 
-static void at_least_one(SATSolver* solver, const std::vector<CMSat::Lit>& lits)
+static void at_least_one(Solver* solver, const VariableList& lits)
 {
 	solver->add_clause(lits);
 }
 
-static void at_most_one(SATSolver* solver, const std::vector<CMSat::Lit>& lits)
+static void at_most_one(Solver* solver, const VariableList& lits)
 {
 	for (size_t i = 0; i < lits.size(); i++) {
 		for (size_t j = i+1; j < lits.size(); j++) {
@@ -39,7 +108,7 @@ static void at_most_one(SATSolver* solver, const std::vector<CMSat::Lit>& lits)
 	}
 }
 
-static CMSat::Lit commander_variable(SATSolver* solver, const std::vector<CMSat::Lit>& lits)
+static Variable commander_variable(Solver* solver, const VariableList& lits)
 {
 	auto var = make_var(solver);
 
@@ -49,14 +118,14 @@ static CMSat::Lit commander_variable(SATSolver* solver, const std::vector<CMSat:
 	}
 
 	//var => (a or b or c ...)
-	std::vector<CMSat::Lit> clause(lits);
+	VariableList clause(lits);
 	clause.push_back(~var);
 	solver->add_clause(clause);
 
 	return var;
 }
 
-static void commander_recursive(SATSolver* solver, const std::vector<CMSat::Lit>& lits, size_t groupSize)
+static void commander_recursive(Solver* solver, const VariableList& lits, size_t groupSize)
 {
 	at_least_one(solver, lits);
 
@@ -67,10 +136,10 @@ static void commander_recursive(SATSolver* solver, const std::vector<CMSat::Lit>
 		return;
 	}
 
-	std::vector<CMSat::Lit> treevars;
+	VariableList treevars;
 	for (size_t i = 0; i < lits.size()/groupSize; i++) {
 		int idx = groupSize*i;
-		std::vector<CMSat::Lit> group(&lits[idx], &lits[idx]+groupSize);
+		VariableList group(&lits[idx], &lits[idx]+groupSize);
 		at_most_one(solver, group);
 
 		auto treevar = commander_variable(solver, group);
@@ -80,25 +149,24 @@ static void commander_recursive(SATSolver* solver, const std::vector<CMSat::Lit>
 	commander_recursive(solver, treevars, groupSize);
 }
 
-OneHotByte::OneHotByte(SATSolver* solver)
+OneHotByte::OneHotByte(Solver* solver)
 	: m_solver(solver)
-	, m_start(solver->nVars())
+	, m_start(solver->var_count())
 {
 	solver->new_vars(length());
 
-	//commander variable one-hot encoding
 	commander_recursive(solver, all(), 4);
 }
 
-CMSat::Lit OneHotByte::at(int i) const
+Variable OneHotByte::at(int i) const
 {
 	assert((i >= m_start) && (i < m_start+length()));
 	return CMSat::Lit(m_start + i, false);
 }
 
-std::vector<CMSat::Lit> OneHotByte::all() const
+VariableList OneHotByte::all() const
 {
-	std::vector<CMSat::Lit> lits;
+	VariableList lits;
 	lits.reserve(length());
 	for (int i = 0; i < length(); i++) {
 		lits.push_back(at(i));
@@ -121,7 +189,7 @@ int main(int argc, char** argv) {
 	(void)argc;
 	(void)argv;
 
-	CMSat::SATSolver solver;
+	Solver solver;
 	OneHotByte byte(&solver);
 
 	// std::vector<CMSat::Lit> clause;
@@ -150,6 +218,7 @@ int main(int argc, char** argv) {
 	// solver.add_clause({byte.at(143)});
 
 	lbool ret = solver.solve();
+	// solver.print_stats();
 	assert(ret == l_True);
 	std::cout << ret << " " << byte.to_int() << std::endl;
 	// std::cout
