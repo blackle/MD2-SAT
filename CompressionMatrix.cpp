@@ -31,3 +31,17 @@ OneHotByteList CompressionMatrix::chaining_output() const
 	auto start = &m_bytes[STRIDE_LENGTH*(NUM_ROUNDS-1)];
 	return OneHotByteList(start, start+SUB_MATRIX_LENGTH);
 }
+
+std::optional<OneHotByte> CompressionMatrix::left_neighbour(unsigned index) const
+{
+	if (index == 0) return {};
+
+	return m_bytes.at(index - 1); //TODO: add T offset
+}
+
+std::optional<OneHotByte> CompressionMatrix::top_neighbour(unsigned index) const
+{
+	if (index < STRIDE_LENGTH) return {};
+
+	return m_bytes.at(index - STRIDE_LENGTH);
+}

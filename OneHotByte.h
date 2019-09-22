@@ -9,6 +9,7 @@ class OneHotByte
 {
 public:
 	explicit OneHotByte(Solver* solver);
+	explicit OneHotByte(Solver* solver, const VariableList& vars);
 
 	Variable at(size_t i) const;
 	const VariableList& all() const;

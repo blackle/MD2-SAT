@@ -9,6 +9,11 @@ OneHotByte::OneHotByte(Solver* solver)
 	OneHotConstraint::commander(solver, all(), 4);
 }
 
+OneHotByte::OneHotByte(Solver* solver, const VariableList& vars)
+	: m_solver(solver)
+	, m_vars(vars)
+{}
+
 Variable OneHotByte::at(size_t i) const
 {
 	return m_vars.at(i);
