@@ -2,16 +2,17 @@
 #include <cryptominisat5/cryptominisat.h>
 #include <vector>
 #include "Variable.h"
-#include "Solver.h"
+
+class Solver;
 
 class OneHotByte
 {
 public:
-	OneHotByte(Solver* solver);
+	explicit OneHotByte(Solver* solver);
 
 	Variable at(size_t i) const;
 	const VariableList& all() const;
-	inline int length() const { return 256; }
+	constexpr int length() const { return 256; }
 
 	int to_int() const;
 

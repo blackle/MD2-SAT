@@ -1,4 +1,5 @@
 #include "CompressionMatrix.h"
+#include "Solver.h"
 
 constexpr int NUM_ROUNDS = 18;
 constexpr int SUB_MATRIX_LENGTH = 16;

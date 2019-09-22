@@ -11,9 +11,9 @@ int main(int argc, char** argv) {
 
 	std::cerr << "variables:" << solver.var_count() << std::endl;
 	std::cerr << "clauses:" << solver.clause_count() << std::endl;
-	// CMSat::lbool ret = solver.solve();
+	CMSat::lbool ret = solver.solve();
 	// solver.print_stats();
-	// assert(ret == CMSat::l_True);
+	assert(ret == CMSat::l_True);
 	// std::cout << ret << " " << byte.to_int() << std::endl;
 
 	return 0;

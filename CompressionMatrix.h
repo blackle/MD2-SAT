@@ -1,11 +1,11 @@
 #pragma once
-#include "Variable.h"
-#include "Solver.h"
 #include "OneHotByte.h"
+
+class Solver;
 
 class CompressionMatrix {
 public:
-	CompressionMatrix(Solver* solver);
+	explicit CompressionMatrix(Solver* solver);
 
 	OneHotByteList message_block() const;
 	OneHotByteList chaining_input() const;
