@@ -1,7 +1,7 @@
 #pragma once
 #include <cryptominisat5/cryptominisat.h>
-#include "variable.h"
-#include "solver.h"
+#include "Variable.h"
+#include "Solver.h"
 
 class OneHotByte
 {

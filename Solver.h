@@ -1,6 +1,6 @@
 #pragma once
 #include <cryptominisat5/cryptominisat.h>
-#include "variable.h"
+#include "Variable.h"
 
 class Solver {
 public:

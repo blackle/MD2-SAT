@@ -1,4 +1,4 @@
-#include "solver.h"
+#include "Solver.h"
 
 Solver::Solver()
 	: m_clause_count(0)

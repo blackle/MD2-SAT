@@ -1,4 +1,4 @@
-#include "onehotbyte.h"
+#include "OneHotByte.h"
 
 static void at_least_one(Solver* solver, const VariableList& lits)
 {

@@ -1,11 +1,14 @@
 CXX = g++
-CXXFLAGS = -g -O3 -std=c++11 -march=native -Wall -Wextra -Werror
+CXXFLAGS = -g -O3 -std=c++11 -Wall -Wextra -Werror
 LINKER = g++
 LFLAGS = -lcryptominisat5
-OBJS = solver.o onehotbyte.o
+OBJS = Solver.o OneHotByte.o
 
 main : main.o $(OBJS)
 	$(LINKER) $(LFLAGS) -o $@ $^
 
 %.o : %.cpp %.h
 	$(CXX) $(CXXFLAGS) -c -o $*.o $*.cpp
+
+clean :
+	rm main *.o
