@@ -2,7 +2,9 @@
 
 Solver::Solver()
 	: m_clause_count(0)
-{}
+{
+	m_sat_solver.set_num_threads(4);
+}
 
 Variable Solver::new_var()
 {
@@ -38,9 +40,16 @@ unsigned Solver::clause_count() const
 	return m_clause_count;
 }
 
+void Solver::assume(const Variable& var)
+{
+	m_assumptions.push_back(var);
+}
+
 CMSat::lbool Solver::solve()
 {
-	return m_sat_solver.solve();
+	auto retval = m_sat_solver.solve(&m_assumptions);
+	m_sat_solver.print_stats();
+	return retval;
 }
 
 const std::vector<CMSat::lbool>& Solver::get_model() const
