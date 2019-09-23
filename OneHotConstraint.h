@@ -9,8 +9,8 @@ public:
 	static void at_most_one(Solver* solver, const VariableList& vars);
 	static void naive(Solver* solver, const VariableList& vars);
 	static void commander(Solver* solver, const VariableList& vars, size_t group_size);
+	static Variable commander_variable(Solver* solver, const VariableList& vars);
+
 private:
 	OneHotConstraint() = delete;
-
-	static Variable commander_variable(Solver* solver, const VariableList& vars);
 };

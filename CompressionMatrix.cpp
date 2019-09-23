@@ -20,17 +20,17 @@ CompressionMatrix::CompressionMatrix(Solver* s)
 		if (i == STRIDE_LENGTH && top) {
 			OneHotByte zero(m_solver);
 			zero.assume(0);
-			OneHotByteOperation::exclusive_or(m_solver, OneHotByteOperation::sbox(zero), *top, byte);
+			OneHotByteOperation::exclusive_or_commander(m_solver, OneHotByteOperation::sbox(zero), *top, byte);
 			continue;
 		}
 
 		if (left && top) {
-			OneHotByteOperation::exclusive_or(m_solver, OneHotByteOperation::sbox(*left), *top, byte);
+			OneHotByteOperation::exclusive_or_commander(m_solver, OneHotByteOperation::sbox(*left), *top, byte);
 		}
 	}
 
 	for (unsigned i = 0; i < SUB_MATRIX_LENGTH; i++) {
-		OneHotByteOperation::exclusive_or(m_solver, m_bytes[i], m_bytes[i + SUB_MATRIX_LENGTH], m_bytes[i + SUB_MATRIX_LENGTH*2]);
+		OneHotByteOperation::exclusive_or_commander(m_solver, m_bytes[i], m_bytes[i + SUB_MATRIX_LENGTH], m_bytes[i + SUB_MATRIX_LENGTH*2]);
 	}
 }
 

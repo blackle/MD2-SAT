@@ -1,4 +1,5 @@
 #include "OneHotByteOperation.h"
+#include "OneHotConstraint.h"
 #include "OneHotByte.h"
 #include "Solver.h"
 #include <algorithm>
@@ -13,11 +14,36 @@ static void exclusive_or_implication(Solver* solver, const OneHotByte& a, const 
 }
 
 //TODO: test this
-void OneHotByteOperation::exclusive_or(Solver* solver, const OneHotByte& a, const OneHotByte& b, const OneHotByte& c)
+void OneHotByteOperation::exclusive_or_naive(Solver* solver, const OneHotByte& a, const OneHotByte& b, const OneHotByte& c)
 {
 	exclusive_or_implication(solver, b, c, a);
 	exclusive_or_implication(solver, a, c, b);
 	exclusive_or_implication(solver, a, b, c);
+}
+
+static Variable exclusive_or_commander_bit(Solver* solver, const OneHotByte& a, size_t bit)
+{
+	VariableList vars;
+	for (size_t i = 0; i < a.length(); i++) {
+		if ((i >> bit) % 2 == 1) {
+			vars.push_back(a.at(i));
+		}
+	}
+	return OneHotConstraint::commander_variable(solver, vars);
+}
+
+void OneHotByteOperation::exclusive_or_commander(Solver* solver, const OneHotByte& a, const OneHotByte& b, const OneHotByte& c)
+{
+	for (size_t bit = 0; bit < 8; bit++) {
+		auto abit = exclusive_or_commander_bit(solver, a, bit);
+		auto bbit = exclusive_or_commander_bit(solver, b, bit);
+		auto cbit = exclusive_or_commander_bit(solver, c, bit);
+
+		solver->add_clause({~abit, ~bbit, ~cbit});
+		solver->add_clause({~abit,  bbit,  cbit});
+		solver->add_clause({ abit, ~bbit,  cbit});
+		solver->add_clause({ abit,  bbit, ~cbit});
+	}
 }
 
 static const std::vector<int> sbox_permutation = {

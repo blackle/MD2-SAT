@@ -9,9 +9,9 @@ int main(int argc, char** argv) {
 	Solver solver;
 	CompressionMatrix compression_matrix(&solver);
 	compression_matrix.chaining_output()[0].assume(175);
-	compression_matrix.chaining_output()[1].assume(193);
-	compression_matrix.chaining_output()[2].assume(186);
-	compression_matrix.chaining_output()[3].assume(12);
+	compression_matrix.chaining_output()[1].assume(149);
+	compression_matrix.chaining_output()[2].assume(206);
+	// compression_matrix.chaining_output()[3].assume(12);
 
 	compression_matrix.message_block()[0].assume(0);
 	compression_matrix.message_block()[1].assume(0);
